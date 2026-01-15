@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="EmployeeManager.Application/EmployeeManager.Application.csproj" />
+  <Project Path="EmployeeManager.ConsoleApp/EmployeeManager.ConsoleApp.csproj" />
+  <Project Path="EmployeeManager.Domain/EmployeeManager.Domain.csproj" />
+  <Project Path="EmployeeManager.Infrastructure/EmployeeManager.Infrastructure.csproj" />
+</Solution>
