@@ -16,6 +16,7 @@ namespace EmployeeManager.Domain.Entities
         private Employee() { }
 
         public static Employee Create(
+            int id,
             string firstName,
             string surname,
             string patronymic,
@@ -27,6 +28,7 @@ namespace EmployeeManager.Domain.Entities
         {
             var employee = new Employee
             {
+                Id = id,
                 FirstName = firstName,
                 Surname = surname,
                 Patronymic = patronymic,
