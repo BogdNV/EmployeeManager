@@ -1,0 +1,262 @@
+using System.Reflection;
+using EmployeeManager.Application.DTOs;
+using EmployeeManager.Application.DTOs.Request;
+using EmployeeManager.Application.Interfaces;
+using EmployeeManager.ConsoleApp.Presentation.Interfaces;
+using EmployeeManager.Domain.Entities;
+
+namespace EmployeeManager.ConsoleApp.Presentation
+{
+    public class MenuManager
+    {
+        readonly IEmployeeRepository _repository;
+        readonly IConsoleUI _ui;
+
+        public MenuManager(IEmployeeRepository repository, IConsoleUI consoleUI)
+        {
+            _ui = consoleUI;
+            _repository = repository;
+
+        }
+        public void Run()
+        {
+            bool exit = false;
+
+            while (!exit)
+            {
+                _ui.ClearScreen();
+                _ui.DisplayHeader("Управление сотрудниками");
+
+                Console.WriteLine("1. Добавить сотрудника");
+                Console.WriteLine("2. Просмотр всех сотрудников");
+                Console.WriteLine("3. Просмотр деталей сотрудника");
+                Console.WriteLine("4. Изменить данные о сотруднике");
+                Console.WriteLine("5. Удалить сотрудника");
+                Console.WriteLine("6. Найти сотрудника");
+                Console.WriteLine("0. Выход");
+
+                var input = _ui.ReadString("Выберите действие");
+
+                switch (input)
+                {
+                    case "1": AddEmployee(); break;
+                    case "2": ShowAllEmployees(); break;
+                    case "3": ShowEmployeeDetails(); break;
+                    case "4": UpdateEmployee(); break;
+                    case "5": DeleteEmployee(); break;
+                    case "6": FindEmployees(); break;
+                    case "0": exit = true; break;
+                    default: _ui.DisplayError("Неверный набор"); break;
+                }
+            }
+        }
+
+        async Task AddEmployee()
+        {
+            _ui.ClearScreen();
+            _ui.DisplayHeader("Добавление нового сотрудника");
+
+            var request = Employee.Create(
+                firstName: _ui.ReadString("Введите имя"),
+                surname: _ui.ReadString("Введите фамилию"),
+                patronymic: _ui.ReadString("Введите отчество"),
+                dateOfBirth: _ui.ReadDate("Введите дату рождения"),
+                address: _ui.ReadString("Введите адрес проживания", false),
+                department: _ui.ReadString("Введите отдел"),
+                aboutMe: _ui.ReadString("Информация о себе", false)
+            );
+
+            try
+            {
+                await _repository.AddAsync(request);
+                _ui.DisplaySuccess("Сотрудник успешно добавлен!");
+            }
+            catch (Exception ex)
+            {
+                _ui.DisplayError($"Ошибка при добавлении: {ex.Message}");
+            }
+            finally
+            {
+                _ui.WaitForAnyKey();
+            }
+
+
+        }
+
+        async Task UpdateEmployee()
+        {
+            _ui.ClearScreen();
+            _ui.DisplayHeader("Редактирование сотрудника");
+
+
+            var id = _ui.ReadInt("Введите ID сотрудника", 1);
+            var query = await _repository.GetAllAsync();
+            EmployeeDto employee = query.Where(x => x.Id == id).Select(e => new EmployeeDto
+            {
+                Id = e.Id,
+                FirstName = e.FirstName,
+                Surname = e.Surname,
+                Patronymic = e.Patronymic,
+                DateOfBirth = e.DateOfBirth,
+                Department = e.Department,
+                Address = e.Address,
+                AboutMe = e.AboutMe
+            }).ToArray()[0];
+
+            if (employee == null)
+            {
+                _ui.DisplayError("Сотрудник не найден!");
+                _ui.WaitForAnyKey();
+                return;
+            }
+
+            // DisplayEmployeeDetails(employee);
+            _ui.DisplayMessage("\nВведите новые данные (оставте пустым чтобы не изменять):");
+
+            var aboutMe = _ui.ReadString("Введите \"Информация о себе\"", false);
+            if (!string.IsNullOrWhiteSpace(aboutMe))
+                employee.AboutMe = aboutMe;
+
+            var department = _ui.ReadString("Введите отдел", false);
+            if (!string.IsNullOrWhiteSpace(department))
+                employee.Department = department;
+
+            var address = _ui.ReadString("Введите адрес проживания", false);
+            if (!string.IsNullOrWhiteSpace(address))
+                employee.Address = address;
+
+            var surname = _ui.ReadString("Введите фамилию", false);
+            if (!string.IsNullOrWhiteSpace(surname))
+                employee.Surname = surname;
+
+            try
+            {
+                var res = Employee.Create(
+                    employee.FirstName,
+                    employee.Surname,
+                    employee.Patronymic,
+                    employee.Address,
+                    employee.Department,
+                    employee.DateOfBirth,
+                    employee.AboutMe
+                );
+                PropertyInfo? propertyInfo = typeof(Employee).GetProperty("Id");
+                propertyInfo?.SetValue(res, employee.Id);
+                await _repository.UpdateAsync(res);
+                _ui.DisplaySuccess("Данные успешно обновлены!");
+            }
+            catch (Exception ex)
+            {
+                _ui.DisplayError($"Ошибка: {ex.Message}");
+            }
+            finally
+            {
+                _ui.WaitForAnyKey();
+            }
+        }
+
+        async Task ShowAllEmployees()
+        {
+            _ui.ClearScreen();
+            _ui.DisplayHeader("Список всех сотрудников");
+
+            var employees = await _repository.GetAllAsync();
+
+            var columns = new Dictionary<string, Func<Employee, object>>
+            {
+                ["ID"] = e => e.Id,
+                ["Имя"] = e => e.FirstName,
+                ["Фамилия"] = e => e.Surname,
+                ["Дата рождения"] = e => e.DateOfBirth.ToString("d"),
+                ["Отдел"] = e => e.Department,
+            };
+
+            _ui.DisplayTable(employees, columns);
+            _ui.WaitForAnyKey();
+
+        }
+
+        async Task ShowEmployeeDetails()
+        {
+            _ui.ClearScreen();
+            _ui.DisplayHeader("Информация о сотруднике");
+
+            var id = _ui.ReadInt("Введите ID сотрудника", 1);
+            var employee = await _repository.GetByIdAsync(id);
+
+            if (employee == null)
+            {
+                _ui.DisplayError("Сотрудник не найден!");
+
+            }
+            else
+            {
+                DisplayEmployeeDetails(employee);
+            }
+            _ui.WaitForAnyKey();
+        }
+
+        void DisplayEmployeeDetails(Employee e)
+        {
+            Console.WriteLine($"ID: {e.Id}");
+            Console.WriteLine($"Имя: {e.FirstName}");
+            Console.WriteLine($"Фамилия: {e.Surname}");
+            Console.WriteLine($"Отчество: {e.Patronymic}");
+            Console.WriteLine($"Дата рождения: {e.DateOfBirth:d}");
+            Console.WriteLine($"Адрес проживания: {e.Address ?? "не указан"}");
+            Console.WriteLine($"Отдел: {e.Department}");
+            Console.WriteLine($"Информация \"О себе\": {e.AboutMe ?? "не указан"}");
+        }
+
+        async Task DeleteEmployee()
+        {
+            _ui.ClearScreen();
+            _ui.DisplayHeader("Удаление сотрудника");
+
+            var id = _ui.ReadInt("Ведите ID сотрудника", 1);
+            try
+            {
+                await _repository.DeleteAsync(id);
+                _ui.DisplaySuccess("Сотрудник успешно удален");
+            }
+            catch (Exception ex)
+            {
+                _ui.DisplayError($"Ошибка при удалении: {ex.Message}");
+            }
+            finally
+            {
+                _ui.WaitForAnyKey();
+            }
+
+        }
+
+        async Task FindEmployees()
+        {
+            _ui.ClearScreen();
+            _ui.DisplayHeader("Поиск сотрудников");
+
+            _ui.DisplayMessage("Критерии поиска");
+            var search = _ui.ReadString("Имя, фамилия или отдел (частично)", false);
+
+            var employees = await _repository.SearchAsync(search);
+
+            if (employees != null)
+            {
+                var columns = new Dictionary<string, Func<Employee, object>>
+                {
+                    ["ID"] = e => e.Id,
+                    ["Имя"] = e => e.FirstName,
+                    ["Фамилия"] = e => e.Surname,
+                    ["Дата рождения"] = e => e.DateOfBirth.ToString("d"),
+                    ["Отдел"] = e => e.Department,
+                };
+                _ui.DisplayTable(employees, columns);
+            }
+            else
+            {
+                _ui.DisplayMessage("Сотрудники не найдены");
+            }
+            _ui.WaitForAnyKey();
+        }
+    }
+}
