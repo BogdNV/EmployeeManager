@@ -9,13 +9,13 @@ namespace EmployeeManager.ConsoleApp.Presentation
 {
     public class MenuManager
     {
-        readonly IEmployeeRepository _repository;
+        readonly IEmployeeService _service;
         readonly IConsoleUI _ui;
 
-        public MenuManager(IEmployeeRepository repository, IConsoleUI consoleUI)
+        public MenuManager(IEmployeeService service, IConsoleUI consoleUI)
         {
             _ui = consoleUI;
-            _repository = repository;
+            _service = service;
 
         }
         public void Run()
@@ -56,19 +56,20 @@ namespace EmployeeManager.ConsoleApp.Presentation
             _ui.ClearScreen();
             _ui.DisplayHeader("Добавление нового сотрудника");
 
-            var request = Employee.Create(
-                firstName: _ui.ReadString("Введите имя"),
-                surname: _ui.ReadString("Введите фамилию"),
-                patronymic: _ui.ReadString("Введите отчество"),
-                dateOfBirth: _ui.ReadDate("Введите дату рождения"),
-                address: _ui.ReadString("Введите адрес проживания", false),
-                department: _ui.ReadString("Введите отдел"),
-                aboutMe: _ui.ReadString("Информация о себе", false)
-            );
+            var request = new EmployeeDto
+            {
+                FirstName = _ui.ReadString("Введите имя"),
+                Surname = _ui.ReadString("Введите фамилию"),
+                Patronymic = _ui.ReadString("Введите отчество"),
+                DateOfBirth = _ui.ReadDate("Введите дату рождения"),
+                Address = _ui.ReadString("Введите адрес проживания", false),
+                Department = _ui.ReadString("Введите отдел"),
+                AboutMe = _ui.ReadString("Информация о себе", false)
+            };
 
             try
             {
-                await _repository.AddAsync(request);
+                await _service.CreateEmployeeAsync(request);
                 _ui.DisplaySuccess("Сотрудник успешно добавлен!");
             }
             catch (Exception ex)
@@ -90,18 +91,7 @@ namespace EmployeeManager.ConsoleApp.Presentation
 
 
             var id = _ui.ReadInt("Введите ID сотрудника", 1);
-            var query = await _repository.GetAllAsync();
-            EmployeeDto employee = query.Where(x => x.Id == id).Select(e => new EmployeeDto
-            {
-                Id = e.Id,
-                FirstName = e.FirstName,
-                Surname = e.Surname,
-                Patronymic = e.Patronymic,
-                DateOfBirth = e.DateOfBirth,
-                Department = e.Department,
-                Address = e.Address,
-                AboutMe = e.AboutMe
-            }).ToArray()[0];
+            var employee = await _service.GetEmployeeByIdAsync(id);
 
             if (employee == null)
             {
@@ -131,18 +121,7 @@ namespace EmployeeManager.ConsoleApp.Presentation
 
             try
             {
-                var res = Employee.Create(
-                    employee.FirstName,
-                    employee.Surname,
-                    employee.Patronymic,
-                    employee.Address,
-                    employee.Department,
-                    employee.DateOfBirth,
-                    employee.AboutMe
-                );
-                PropertyInfo? propertyInfo = typeof(Employee).GetProperty("Id");
-                propertyInfo?.SetValue(res, employee.Id);
-                await _repository.UpdateAsync(res);
+                await _service.UpdateEmployeeAsync(id, employee);
                 _ui.DisplaySuccess("Данные успешно обновлены!");
             }
             catch (Exception ex)
@@ -160,9 +139,9 @@ namespace EmployeeManager.ConsoleApp.Presentation
             _ui.ClearScreen();
             _ui.DisplayHeader("Список всех сотрудников");
 
-            var employees = await _repository.GetAllAsync();
+            var employees = await _service.GetAllEmployeesAsync();
 
-            var columns = new Dictionary<string, Func<Employee, object>>
+            var columns = new Dictionary<string, Func<EmployeeDto, object>>
             {
                 ["ID"] = e => e.Id,
                 ["Имя"] = e => e.FirstName,
@@ -182,7 +161,7 @@ namespace EmployeeManager.ConsoleApp.Presentation
             _ui.DisplayHeader("Информация о сотруднике");
 
             var id = _ui.ReadInt("Введите ID сотрудника", 1);
-            var employee = await _repository.GetByIdAsync(id);
+            var employee = await _service.GetEmployeeByIdAsync(id);
 
             if (employee == null)
             {
@@ -196,7 +175,7 @@ namespace EmployeeManager.ConsoleApp.Presentation
             _ui.WaitForAnyKey();
         }
 
-        void DisplayEmployeeDetails(Employee e)
+        void DisplayEmployeeDetails<T>(T e) where T : EmployeeDto
         {
             Console.WriteLine($"ID: {e.Id}");
             Console.WriteLine($"Имя: {e.FirstName}");
@@ -216,7 +195,7 @@ namespace EmployeeManager.ConsoleApp.Presentation
             var id = _ui.ReadInt("Ведите ID сотрудника", 1);
             try
             {
-                await _repository.DeleteAsync(id);
+                await _service.DeleteEmployeeAsync(id);
                 _ui.DisplaySuccess("Сотрудник успешно удален");
             }
             catch (Exception ex)
@@ -238,11 +217,11 @@ namespace EmployeeManager.ConsoleApp.Presentation
             _ui.DisplayMessage("Критерии поиска");
             var search = _ui.ReadString("Имя, фамилия или отдел (частично)", false);
 
-            var employees = await _repository.SearchAsync(search);
+            var employees = await _service.SearchAsync(search);
 
             if (employees != null)
             {
-                var columns = new Dictionary<string, Func<Employee, object>>
+                var columns = new Dictionary<string, Func<EmployeeDto, object>>
                 {
                     ["ID"] = e => e.Id,
                     ["Имя"] = e => e.FirstName,
