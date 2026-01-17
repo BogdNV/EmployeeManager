@@ -15,6 +15,13 @@ namespace EmployeeManager.Domain.Rules
                 throw new DomainException("Фамилия обязательна");
 
         }
+
+        public static void ValidationDateOfBirth(DateTime date)
+        {
+            var yearDiff = DateTime.Now.Year - date.Year;
+            if (yearDiff > 100 || yearDiff < 0)
+                throw new DomainException("Некорректный возраст");
+        }
     }
 
     public class DomainException : Exception

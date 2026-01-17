@@ -47,6 +47,7 @@ namespace EmployeeManager.Domain.Entities
         {
             EmployeeValidationRules.ValidationFirstName(FirstName);
             EmployeeValidationRules.ValidationSurname(Surname);
+            EmployeeValidationRules.ValidationDateOfBirth(DateOfBirth);
         }
     }
 }
