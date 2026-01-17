@@ -1,3 +1,4 @@
+using EmployeeManager.Application.DTOs;
 using EmployeeManager.Application.DTOs.Request;
 using EmployeeManager.Application.Interfaces;
 using EmployeeManager.Domain.Entities;
@@ -11,9 +12,8 @@ namespace EmployeeManager.Application.Services
         {
             _repository = employeeRepository;
         }
-        public async Task<int> CreateEmployeeAsync(Employee employee)
+        public async Task<int> CreateEmployeeAsync(EmployeeDto employee)
         {
-
             await _repository.AddAsync(employee);
             return employee.Id;
         }
@@ -23,17 +23,17 @@ namespace EmployeeManager.Application.Services
             await _repository.DeleteAsync(id);
         }
 
-        public async Task<IEnumerable<Employee>> GetAllEmployeesAsync()
+        public async Task<IEnumerable<EmployeeDto>> GetAllEmployeesAsync()
         {
             return await _repository.GetAllAsync();
         }
 
-        public async Task<Employee?> GetEmployeeByIdAsync(int id)
+        public async Task<EmployeeDto?> GetEmployeeByIdAsync(int id)
         {
             return await _repository.GetByIdAsync(id);
         }
 
-        public async Task UpdateEmployeeAsync(int id, Employee employee)
+        public async Task UpdateEmployeeAsync(int id, EmployeeDto employee)
         {
             await _repository.UpdateAsync(employee);
         }
