@@ -33,6 +33,11 @@ namespace EmployeeManager.Application.Services
             return await _repository.GetByIdAsync(id);
         }
 
+        public async Task<IEnumerable<EmployeeDto>> SearchAsync(string search)
+        {
+            return await _repository.SearchAsync(search);
+        }
+
         public async Task UpdateEmployeeAsync(int id, EmployeeDto employee)
         {
             await _repository.UpdateAsync(employee);

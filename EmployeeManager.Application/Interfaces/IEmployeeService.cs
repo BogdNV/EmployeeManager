@@ -9,5 +9,6 @@ namespace EmployeeManager.Application.Interfaces
         Task DeleteEmployeeAsync(int id);
         Task<EmployeeDto?> GetEmployeeByIdAsync(int id);
         Task<IEnumerable<EmployeeDto>> GetAllEmployeesAsync();
+        Task<IEnumerable<EmployeeDto>> SearchAsync(string search);
     }
 }
