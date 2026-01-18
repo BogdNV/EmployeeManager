@@ -23,6 +23,7 @@ namespace EmployeeManager.Infrastructure.Repositories
             );
 
             _context.Employees.Add(employee);
+            _context.SaveChanges();
             await Task.CompletedTask;
         }
 
@@ -33,6 +34,7 @@ namespace EmployeeManager.Infrastructure.Repositories
             if (employee != null)
             {
                 _context.Employees.Remove(employee);
+                _context.SaveChanges();
             }
             await Task.CompletedTask;
         }
@@ -102,6 +104,7 @@ namespace EmployeeManager.Infrastructure.Repositories
             );
             int index = _context.Employees.IndexOf(employee);
             _context.Employees[index] = employee;
+            _context.SaveChanges();
             await Task.CompletedTask;
         }
     }
