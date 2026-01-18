@@ -1,19 +1,18 @@
-using System.Reflection;
 using EmployeeManager.Application.DTOs;
 using EmployeeManager.Application.Interfaces;
 using EmployeeManager.Domain.Entities;
+using EmployeeManager.Infrastructure.DataAccess;
 
 namespace EmployeeManager.Infrastructure.Repositories
 {
     // in-memory
-    public class EmployeeRepository : IEmployeeRepository
+    public class EmployeeRepository : BaseRepository, IEmployeeRepository
     {
-        private readonly List<Employee> _employees = new();
-        private int _nextId = 1;
+        public EmployeeRepository(IDataContext context) : base(context) { }
         public async Task AddAsync(EmployeeDto entity)
         {
             var employee = Employee.Create(
-                _nextId++,
+                _context.GetNextId(),
                 entity.FirstName,
                 entity.Surname,
                 entity.Patronymic,
@@ -23,24 +22,24 @@ namespace EmployeeManager.Infrastructure.Repositories
                 entity.AboutMe
             );
 
-            _employees.Add(employee);
+            _context.Employees.Add(employee);
             await Task.CompletedTask;
         }
 
         public async Task DeleteAsync(int id)
         {
-            var employee = _employees.FirstOrDefault(x => x.Id == id);
+            var employee = _context.Employees.FirstOrDefault(x => x.Id == id);
 
             if (employee != null)
             {
-                _employees.Remove(employee);
+                _context.Employees.Remove(employee);
             }
             await Task.CompletedTask;
         }
 
         public async Task<IEnumerable<EmployeeDto>> GetAllAsync()
         {
-            return await Task.FromResult(_employees.Select(e => new EmployeeDto
+            return await Task.FromResult(_context.Employees.Select(e => new EmployeeDto
             {
                 Id = e.Id,
                 FirstName = e.FirstName,
@@ -55,7 +54,7 @@ namespace EmployeeManager.Infrastructure.Repositories
 
         public async Task<EmployeeDto?> GetByIdAsync(int id)
         {
-            var e = _employees.FirstOrDefault(x => x.Id == id);
+            var e = _context.Employees.FirstOrDefault(x => x.Id == id);
             return await Task.FromResult(new EmployeeDto
             {
                 Id = e.Id,
@@ -71,7 +70,7 @@ namespace EmployeeManager.Infrastructure.Repositories
 
         public async Task<IEnumerable<EmployeeDto>> SearchAsync(string search)
         {
-            return await Task.FromResult(_employees
+            return await Task.FromResult(_context.Employees
                 .Where(e => e.FirstName.Contains(search, StringComparison.OrdinalIgnoreCase) ||
                             e.Surname.Contains(search, StringComparison.OrdinalIgnoreCase) ||
                             e.Department.Contains(search, StringComparison.OrdinalIgnoreCase))
@@ -101,8 +100,8 @@ namespace EmployeeManager.Infrastructure.Repositories
                 entity.DateOfBirth,
                 entity.AboutMe
             );
-            int index = _employees.IndexOf(employee);
-            _employees[index] = employee;
+            int index = _context.Employees.IndexOf(employee);
+            _context.Employees[index] = employee;
             await Task.CompletedTask;
         }
     }
