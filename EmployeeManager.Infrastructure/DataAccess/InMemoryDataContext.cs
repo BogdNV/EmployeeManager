@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EmployeeManager.Application.DTOs;
 using EmployeeManager.Domain.Entities;
 
 namespace EmployeeManager.Infrastructure.DataAccess
@@ -21,5 +22,7 @@ namespace EmployeeManager.Infrastructure.DataAccess
             Employees.Clear();
             _nextId = 1;
         }
+
+        public void SaveChanges() { }
     }
 }
