@@ -36,6 +36,10 @@ namespace EmployeeManager.Infrastructure.Repositories
                 _context.Employees.Remove(employee);
                 _context.SaveChanges();
             }
+            else
+            {
+                throw new IndexOutOfRangeException("Сотрудник не найден");
+            }
             await Task.CompletedTask;
         }
 
@@ -90,7 +94,7 @@ namespace EmployeeManager.Infrastructure.Repositories
             );
         }
 
-        public async Task UpdateAsync(EmployeeDto entity)
+        public async Task UpdateAsync(int id, EmployeeDto entity)
         {
             var employee = Employee.Create(
                 entity.Id,
@@ -102,9 +106,18 @@ namespace EmployeeManager.Infrastructure.Repositories
                 entity.DateOfBirth,
                 entity.AboutMe
             );
-            int index = _context.Employees.IndexOf(employee);
-            _context.Employees[index] = employee;
-            _context.SaveChanges();
+            var e = _context.Employees.FirstOrDefault(x => x.Id == id);
+            if (e != null)
+            {
+                int index = _context.Employees.IndexOf(e);
+                _context.Employees[index] = employee;
+                _context.SaveChanges();
+            }
+            else
+            {
+                throw new IndexOutOfRangeException("Сотрудник не найден");
+            }
+
             await Task.CompletedTask;
         }
     }

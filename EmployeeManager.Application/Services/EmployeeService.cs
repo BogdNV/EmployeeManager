@@ -1,7 +1,5 @@
 using EmployeeManager.Application.DTOs;
-using EmployeeManager.Application.DTOs.Request;
 using EmployeeManager.Application.Interfaces;
-using EmployeeManager.Domain.Entities;
 
 namespace EmployeeManager.Application.Services
 {
@@ -40,7 +38,7 @@ namespace EmployeeManager.Application.Services
 
         public async Task UpdateEmployeeAsync(int id, EmployeeDto employee)
         {
-            await _repository.UpdateAsync(employee);
+            await _repository.UpdateAsync(id, employee);
         }
     }
 }
