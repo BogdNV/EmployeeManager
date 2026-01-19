@@ -1,13 +1,15 @@
-using System.Reflection;
 using EmployeeManager.Application.DTOs;
-using EmployeeManager.Application.DTOs.Request;
 using EmployeeManager.Application.Interfaces;
 using EmployeeManager.ConsoleApp.Presentation.Interfaces;
-using EmployeeManager.Domain.Entities;
 
 namespace EmployeeManager.ConsoleApp.Presentation
 {
-    public class MenuManager
+    public interface IMenuManager
+    {
+        Task RunAsync();
+    }
+
+    public class MenuManager : IMenuManager
     {
         readonly IEmployeeService _service;
         readonly IConsoleUI _ui;
@@ -18,7 +20,7 @@ namespace EmployeeManager.ConsoleApp.Presentation
             _service = service;
 
         }
-        public void Run()
+        public async Task RunAsync()
         {
             bool exit = false;
 
@@ -39,12 +41,12 @@ namespace EmployeeManager.ConsoleApp.Presentation
 
                 switch (input)
                 {
-                    case "1": AddEmployee(); break;
-                    case "2": ShowAllEmployees(); break;
-                    case "3": ShowEmployeeDetails(); break;
-                    case "4": UpdateEmployee(); break;
-                    case "5": DeleteEmployee(); break;
-                    case "6": FindEmployees(); break;
+                    case "1": await AddEmployee(); break;
+                    case "2": await ShowAllEmployees(); break;
+                    case "3": await ShowEmployeeDetails(); break;
+                    case "4": await UpdateEmployee(); break;
+                    case "5": await DeleteEmployee(); break;
+                    case "6": await FindEmployees(); break;
                     case "0": exit = true; break;
                     default: _ui.DisplayError("Неверный набор"); break;
                 }
