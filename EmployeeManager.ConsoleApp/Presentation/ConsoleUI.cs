@@ -13,7 +13,7 @@ namespace EmployeeManager.ConsoleApp.Presentation
         {
             var defaultColor = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"Ошибка: {error}");
+            Console.WriteLine($"{error}");
             Console.ForegroundColor = defaultColor;
         }
 
