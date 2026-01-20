@@ -14,6 +14,6 @@ namespace EmployeeManager.Application.DTOs.Request
         public string Department { get; set; }
         public DateTime DateOfBirth { get; set; }
         public string AboutMe { get; set; }
-        public string FullName => $"{Surname} {FullName} {Patronymic}";
+        public string FullName => $"{Surname} {FirstName} {Patronymic}";
     }
 }
