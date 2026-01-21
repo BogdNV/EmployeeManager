@@ -5,7 +5,6 @@ using EmployeeManager.Infrastructure.DataAccess;
 
 namespace EmployeeManager.Infrastructure.Repositories
 {
-    // in-memory
     public class EmployeeRepository : BaseRepository, IEmployeeRepository
     {
         public EmployeeRepository(IDataContext context) : base(context) { }

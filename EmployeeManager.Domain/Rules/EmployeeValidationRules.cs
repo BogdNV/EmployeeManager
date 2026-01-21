@@ -19,7 +19,7 @@ namespace EmployeeManager.Domain.Rules
         public static void ValidationDateOfBirth(DateTime date)
         {
             var yearDiff = DateTime.Now.Year - date.Year;
-            if (yearDiff > 100 || yearDiff < 0)
+            if (yearDiff > 100 || yearDiff < 18)
                 throw new DomainException("Некорректный возраст");
         }
     }

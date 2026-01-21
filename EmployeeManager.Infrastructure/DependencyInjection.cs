@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using EmployeeManager.Application.Interfaces;
 using EmployeeManager.Infrastructure.DataAccess;
 using EmployeeManager.Infrastructure.Repositories;
@@ -15,7 +11,7 @@ namespace EmployeeManager.Infrastructure
         {
             services.AddSingleton<IDataContext, InMemoryDataContext>();
             services.AddScoped<IEmployeeRepository, EmployeeRepository>();
-            services.AddScoped<IDataContext, FileDataContext>();
+            // services.AddScoped<IDataContext, FileDataContext>();
 
             return services;
         }
