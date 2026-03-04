@@ -7,12 +7,19 @@ namespace EmployeeManager.Infrastructure
 {
     public static class DependencyInjection
     {
-        public static IServiceCollection AddInfrastructure(this IServiceCollection services)
+        public static IServiceCollection AddFileInfrastructure(this IServiceCollection services, string path)
         {
-            services.AddSingleton<IDataContext, InMemoryDataContext>();
             services.AddScoped<IEmployeeRepository, EmployeeRepository>();
-            // services.AddScoped<IDataContext, FileDataContext>();
+            services.AddScoped<IDataContext, FileDataContext>(p =>
+            new FileDataContext(path));
 
+            return services;
+        }
+
+        public static IServiceCollection AddInMemoryInfrastructure(this IServiceCollection services)
+        {
+            services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+            services.AddSingleton<IDataContext, InMemoryDataContext>();
             return services;
         }
     }
