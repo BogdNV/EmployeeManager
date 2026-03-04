@@ -8,10 +8,11 @@ namespace EmployeeManager.Infrastructure.Repositories
     public class EmployeeRepository : BaseRepository, IEmployeeRepository
     {
         public EmployeeRepository(IDataContext context) : base(context) { }
-        public async Task AddAsync(EmployeeDto entity)
+        public async Task<int> AddAsync(EmployeeDto entity)
         {
+            var id = _context.GetNextId();
             var employee = Employee.Create(
-                _context.GetNextId(),
+                id,
                 entity.FirstName,
                 entity.Surname,
                 entity.Patronymic,
@@ -24,6 +25,7 @@ namespace EmployeeManager.Infrastructure.Repositories
             _context.Employees.Add(employee);
             _context.SaveChanges();
             await Task.CompletedTask;
+            return id;
         }
 
         public async Task DeleteAsync(int id)

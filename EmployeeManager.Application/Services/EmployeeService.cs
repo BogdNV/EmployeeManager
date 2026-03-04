@@ -12,8 +12,8 @@ namespace EmployeeManager.Application.Services
         }
         public async Task<int> CreateEmployeeAsync(EmployeeDto employee)
         {
-            await _repository.AddAsync(employee);
-            return employee.Id;
+            var id = await _repository.AddAsync(employee);
+            return id;
         }
 
         public async Task DeleteEmployeeAsync(int id)
