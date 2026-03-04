@@ -1,0 +1,32 @@
+[
+  {
+    "Id": 2,
+    "FirstName": "Роман",
+    "Surname": "Николаев",
+    "Patronymic": "Валерич",
+    "Address": "city 17",
+    "Department": "Microsoft",
+    "DateOfBirth": "1988-11-11T00:00:00",
+    "AboutMe": "обо мне"
+  },
+  {
+    "Id": 4,
+    "FirstName": "Иван",
+    "Surname": "Иванов",
+    "Patronymic": "Валерич",
+    "Address": "ростов",
+    "Department": "Microsoft",
+    "DateOfBirth": "2001-03-11T00:00:00",
+    "AboutMe": "обо мне"
+  },
+  {
+    "Id": 5,
+    "FirstName": "Alex",
+    "Surname": "Kurdecha",
+    "Patronymic": "Валерич",
+    "Address": "Kanada",
+    "Department": "Apple",
+    "DateOfBirth": "2003-03-11T00:00:00",
+    "AboutMe": "обо мне"
+  }
+]
